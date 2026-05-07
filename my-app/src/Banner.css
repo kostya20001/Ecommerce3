@@ -1,0 +1,37 @@
+.banner {
+    position: relative;
+    background: linear-gradient(90deg, #D4183D 0%, rgba(212, 24, 61, 0.8) 100%);
+    border-radius: 12px;
+    padding: 12px;
+    margin: 12px;
+}
+
+.close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;  /* Прозрачный фон */
+    border: none;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: all 0.2s ease;
+
+    outline: none;
+    box-shadow: none;
+}
+
+.close:hover {
+    color: #000000;
+    transform: scale(1.1);
+}
+
+.close:active {
+    transform: scale(0.95);
+}
+
+.text {
+    color: white;
+}

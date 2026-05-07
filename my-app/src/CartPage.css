@@ -1,0 +1,254 @@
+.cart-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.cart-page h2 {
+  margin-bottom: 30px;
+  font-size: 28px;
+  color: #000000;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* Пустая корзина */
+.cart-empty {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.cart-empty h2 {
+  font-size: 32px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.continue-shopping-btn {
+  padding: 12px 24px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.continue-shopping-btn:hover {
+  background-color: #4e4e4e;
+}
+
+/* Две колонки */
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 30px;
+}
+
+/* Список товаров */
+.cart-items {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  margin: 10px;
+  border-bottom: 1px solid #e9ecef;
+  border: 1px solid #0000001A;
+  border-radius: 8px;
+  gap: 20px;
+}
+
+/* Левая часть с информацией о товаре */
+.cart-item-info {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex: 2;
+}
+
+.cart-item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cart-item-brand {
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+}
+
+.cart-item-model {
+  font-weight: 500;
+  color: #333;
+  margin-top: 4px;
+}
+
+/* Правая часть с ценой и корзиной */
+.cart-item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Кнопки количества */
+.cart-item-quantity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.quantity-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.quantity-btn:hover {
+  background-color: #f0f0f0;
+  border-color: #aaa;
+}
+
+.cart-item-quantity span {
+  min-width: 30px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Цена за позицию */
+.cart-item-total {
+  font-weight: 600;
+  color: #333;
+  font-size: 16px;
+  text-align: right;
+}
+
+/* Кнопка удаления */
+.remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-btn:hover {
+  background-color: #fee2e2;
+}
+
+/* Сводка заказа */
+.order-summary {
+  border: 1px solid #0000001A;
+  padding: 24px;
+  border-radius: 12px;
+  height: fit-content;
+}
+
+.order-summary h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  color: #555;
+}
+
+.summary-row.shipping {
+  border-bottom: none;
+  color: #888;
+}
+
+.summary-row.total {
+  border-top: 2px solid #dee2e6;
+  border-bottom: none;
+  margin-top: 12px;
+  padding-top: 20px;
+  font-weight: 700;
+  font-size: 18px;
+  color: #333;
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.2s;
+}
+
+.checkout-btn:hover {
+  background-color: #218838;
+}
+
+.back-shopping-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  color: #000000;
+  border: 1px solid #0000001A;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s;
+}
+
+.back-shopping-btn:hover {
+  background-color: #007bff10;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .cart-item-info {
+    width: 100%;
+  }
+  
+  .cart-item-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .cart-item-total {
+    text-align: left;
+  }
+}

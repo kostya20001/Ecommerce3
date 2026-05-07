@@ -1,0 +1,50 @@
+.app-container {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.sidebar {
+  flex-shrink: 0;
+  width: 280px;
+  top: 20px;
+  align-self: flex-start;
+  position: sticky;
+}
+
+.products-grid {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; 
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+    padding: 16px;
+  }
+  
+  .sidebar {
+    width: 100%;
+  }
+}
+
+.products-count {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.sort-panel {
+  margin-right: 0px;
+}

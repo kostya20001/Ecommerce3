@@ -1,0 +1,284 @@
+.Card {
+    border: 1px solid #050505;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    height: 350px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* тест */
+    
+}
+
+.CardImage {
+  position: relative;
+  background: #f5f5f5;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.CardBody {
+    padding: 0 10px 10px 10px;
+}
+
+.product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;  /* Чтобы картинка красиво вписалась */
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.brand {
+    color: #717182;
+    margin: 5px 0px; 
+}
+
+.model {
+    font-size: 20px;
+    margin: 5px 0;
+    font-family: Arial, Helvetica, sans-serif;
+
+}
+
+.price {
+    font-size: 17px;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 10px 0;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.ButtonCard {
+    background-color: #050505;
+    color: aliceblue;
+    border-radius: 8px;
+    border: none;
+    height: 35px;
+    width: 100%;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: auto;
+}
+
+.ButtonCard:hover {
+  background: #7a7a7a;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(39, 39, 39, 0.308);
+}
+
+.ButtonCard:active {
+  transform: translateY(0);
+}
+
+.like-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0;
+}
+
+.like-button:hover {
+  transform: scale(1.1);
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.like-button:active {
+  transform: scale(0.95);
+}
+
+.like-button.liked {
+  animation: heartBeat 0.3s ease;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: none;
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  padding: 0;
+  line-height: 1;
+}
+
+.nav-button:hover {
+  background: white;
+  transform: translateY(-50%) scale(1.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.nav-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.nav-button-left {
+  left: 12px;
+}
+
+.nav-button-right {
+  right: 12px;
+}
+
+/* Индикатор текущего изображения */
+.image-counter {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  z-index: 10;
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .Card {
+    max-width: 100%;
+    margin: 10px;
+  }
+  
+  .nav-button {
+    width: 32px;
+    height: 32px;
+    font-size: 1.5rem;
+  }
+  
+  .like-button {
+    width: 36px;
+    height: 36px;
+    font-size: 1.4rem;
+    top: 8px;
+    right: 8px;
+  }
+  
+  .price {
+    font-size: 1.3rem;
+  }
+}
+
+.special-offer-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #D4183D;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    animation: pulse 1.5s infinite;
+}
+
+.brand-category {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* Адаптивность для бейджей */
+@media (max-width: 768px) {
+    .special-offer-badge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+    
+    .category-badge {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+}
+
+.cart-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 5px;
+    border: 1px solid #e9ecef;
+}
+
+.cart-decrement,
+.cart-increment {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    background-color: #000000;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-decrement:hover,
+.cart-increment:hover {
+    background-color: #8a8a8a;
+    transform: scale(1.05);
+}
+
+.cart-decrement:active,
+.cart-increment:active {
+    transform: scale(0.95);
+}
+
+.cart-quantity {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    flex: 1;
+    text-align: center;
+}

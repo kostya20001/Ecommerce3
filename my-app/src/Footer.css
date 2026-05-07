@@ -1,0 +1,125 @@
+.footer {
+  border-top: 1px solid #222;
+  background-color: #ffffff;
+  color: #383838;
+  padding: 48px 32px 24px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.footer-container {
+  
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  margin-bottom: 48px;
+}
+
+.footer-section h3 {
+  color: rgb(0, 0, 0);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section li {
+  margin-bottom: 12px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.footer-section li:hover {
+  color: rgb(0, 0, 0);
+}
+
+.newsletter-section p {
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+  color: #ffffff;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.newsletter-form input {
+  flex: 1;
+  background: #eceaea;
+  border: 1px solid #494949;
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: white;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.newsletter-form input:focus {
+  border-color: #666;
+}
+
+.newsletter-form button {
+  background: black;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.newsletter-form button:hover {
+  opacity: 0.9;
+}
+
+.footer-bottom {
+  border-top: 1px solid #222;
+  padding-top: 24px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+/* Адаптив для планшетов */
+@media (max-width: 768px) {
+  .footer {
+    padding: 40px 24px 20px;
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+  }
+}
+
+/* Адаптив для телефонов */
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+  }
+
+  .newsletter-form button {
+    width: 100%;
+  }
+}
