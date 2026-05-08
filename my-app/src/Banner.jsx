@@ -1,51 +1,136 @@
 import './Banner.css'
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-function Banner () {
-    const [timeLeft, setTimeLeft] = useState({
-        hours: 0,
-        minutes: 53,
-        seconds: 50
-    });
+function Banner() {
+    const INITIAL_TIME = { hours: 0, minutes: 59, seconds: 59 };
+    
+    const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
+    const [isRunning, setIsRunning] = useState(true);
+    const [isExpired, setIsExpired] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const timerRef = useRef(null);
 
-     useEffect(() => {
-        const timer = setInterval(() => {
+    const stopTimer = () => {
+        if (timerRef.current) {
+            clearInterval(timerRef.current);
+            timerRef.current = null;
+        }
+    };
+
+    const startTimer = () => {
+        if (timerRef.current) stopTimer();
+        
+        timerRef.current = setInterval(() => {
             setTimeLeft(prev => {
-                if (prev.hours === 0 && prev.minutes === 0 && prev.seconds === 0) {
-                    clearInterval(timer);
+                const { hours, minutes, seconds } = prev;
+                
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                    stopTimer();
+                    setIsExpired(true);
+                    setIsRunning(false);
                     return prev;
                 }
                 
-                let { hours, minutes, seconds } = prev;
+                let newHours = hours;
+                let newMinutes = minutes;
+                let newSeconds = seconds;
                 
-                if (seconds > 0) {
-                    seconds--;
+                if (newSeconds > 0) {
+                    newSeconds--;
                 } else {
-                    seconds = 59;
-                    if (minutes > 0) {
-                        minutes--;
-                    } else if (hours > 0) {
-                        hours--;
-                        minutes = 59;
+                    newSeconds = 59;
+                    if (newMinutes > 0) {
+                        newMinutes--;
+                    } else if (newHours > 0) {
+                        newHours--;
+                        newMinutes = 59;
                     }
                 }
                 
-                return { hours, minutes, seconds };
+                const newTime = { hours: newHours, minutes: newMinutes, seconds: newSeconds };
+                
+                if (newHours === 0 && newMinutes === 0 && newSeconds === 0) {
+                    stopTimer();
+                    setIsExpired(true);
+                    setIsRunning(false);
+                }
+                
+                return newTime;
             });
         }, 1000);
+    };
+
+    useEffect(() => {
+        startTimer();
         
-        return () => clearInterval(timer);
+        return () => {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+            }
+        };
     }, []);
 
+    const handleToggleTimer = () => {
+        if (isExpired) return;
+        if (isRunning) {
+            stopTimer();
+        } else {
+            startTimer();
+        }
+        setIsRunning(!isRunning);
+    };
+
+    const handleRestart = () => {
+
+        setTimeLeft(INITIAL_TIME);
+        setIsExpired(false);
+        
+        stopTimer();
+        
+        startTimer();
+        setIsRunning(true);
+    };
+
+    const handleClose = () => {
+        setIsVisible(false);
+    };
+
+    if (!isVisible) {
+        return null;
+    }
+
+    const formatTime = () => {
+        const { hours, minutes, seconds } = timeLeft;
+        return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
+
     return (
-        <div className='banner'> 
-            <button className='close'>✕</button>
+        <div className='banner'>
+            <button className='close' onClick={handleClose}>✕</button>
             <h3 className='title text'>Special Deal!</h3>
             <p className='text'>Register now to unlock exclusive offers and discounts</p>
-            <p className='text timer'>Offer expires in: {String(timeLeft.hours).padStart(2, '0')}:
-                {String(timeLeft.minutes).padStart(2, '0')}:
-                {String(timeLeft.seconds).padStart(2, '0')}
-            </p>
+            
+            {isExpired ? (
+                <p className='text expired'>Timer expired!</p>
+            ) : (
+                <p className='text timer'>Offer expires in: {formatTime()}</p>
+            )}
+            
+            <div className="banner-controls">
+                <button 
+                    className={`control-btn ${isExpired ? 'disabled' : ''}`}
+                    onClick={handleToggleTimer}
+                    disabled={isExpired}
+                >
+                    {isRunning ? ' Stop' : ' Resume'}
+                </button>
+                <button 
+                    className={`control-btn restart-btn ${isExpired ? 'active' : ''}`}
+                    onClick={handleRestart}
+                >
+                     Restart
+                </button>
+            </div>
         </div>
     );
 }
