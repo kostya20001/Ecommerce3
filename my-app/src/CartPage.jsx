@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useCart } from './Container';
+import { useCart } from './hooks/useCart';
+import { usePage } from './hooks/usePage';
 import productsData from './data/products';
 import trash from './assets/trash.svg'
 import './CartPage.css';
 
 const CartPage = () => {
-  const { cart, updateCartQuantity, removeFromCart, setPageType } = useCart();
+  const { cart, updateCartQuantity, removeFromCart } = useCart();
+  const { setPageType } = usePage();
   const [products] = useState(productsData);
 
   // Получаем полные данные товаров из корзины

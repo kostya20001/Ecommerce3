@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCart } from './Container';
+import { useCart } from './hooks/useCart';
 import './ProductCard.css'
 
 const ProductCard = ({ product }) => {
@@ -50,37 +50,6 @@ const ProductCard = ({ product }) => {
         }).format(price);
     };
 
-     const handleAddToCart = () => {
-        setQuantity(1);
-        if (onQuantityChange) {
-            onQuantityChange(id, 1);
-        }
-    };
-
-    const handleIncrement = () => {
-        const newQuantity = quantity + 1;
-        setQuantity(newQuantity);
-        if (onQuantityChange) {
-            onQuantityChange(id, newQuantity);
-        }
-    };
-
-    const handleDecrement = () => {
-        const newQuantity = quantity - 1;
-        if (newQuantity === 0) {
-            setQuantity(0);
-            if (onQuantityChange) {
-                onQuantityChange(id, 0);
-            }
-        } else {
-            setQuantity(newQuantity);
-            if (onQuantityChange) {
-                onQuantityChange(id, newQuantity);
-            }
-        }
-    };
-
-    // Рендер кнопки в зависимости от количества
     const renderCartButton = () => {
         if (quantity === 0) {
       return (

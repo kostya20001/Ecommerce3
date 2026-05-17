@@ -1,32 +1,22 @@
 import React from 'react';
-import { useCart } from './Container';
-import productsData from './data/products';
-import ProductCard from './ProductCard';
+import { usePage } from './hooks/usePage';
 import TechStore from './TechStore';
-import TvListing from './TvListing';
-import PhoneListing from './PhoneListing';
-import LaptopListing from './LaptopListing';
 import CartPage from './CartPage';
 
 const Content = () => {
-  const { pageType } = useCart();
+  const { pageType } = usePage();
   
+  if (pageType === 'cart') {
+    return <CartPage />;
+  }
   
-    switch(pageType) {
-      case 'techstore':
-      return <TechStore />;
-      case 'tv':
-        return <TvListing />;
-      case 'phone':
-        return <PhoneListing />;
-      case 'laptop':
-        return <LaptopListing />;
-      case 'cart':
-        return <CartPage />;
-      default:
-        return <TechStore />;
-    }
-
+  // Передаем category в TechStore для фильтрации
+  let category = null;
+  if (pageType === 'tv') category = 'tv';
+  if (pageType === 'phone') category = 'phone';
+  if (pageType === 'laptop') category = 'laptop';
+  
+  return <TechStore category={category} />;
 };
 
 export default Content;

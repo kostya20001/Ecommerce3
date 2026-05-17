@@ -7,6 +7,7 @@ import SortPanel from './SortPanel';
 import Filters from './Filters';
 import Container from './Container';
 import productsData from './data/products';
+// import { usePage } from './hooks/usePage';
 
 function TechStore() {
   const [products] = useState(productsData);
