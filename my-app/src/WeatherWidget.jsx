@@ -230,7 +230,7 @@ const WeatherWidget = ({ onClose }) => {
             onClick={getUserLocation}
             className="location-button"
           >
-             Моя геолокация
+            Моя геолокация
           </button>
         </div>
       )}
