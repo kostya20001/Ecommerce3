@@ -8,7 +8,14 @@ const WeatherWidget = ({ onClose }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const abortControllerRef = useRef(null);
 
-  // 🔧 1. Обернем getWeatherIcon в useCallback (хотя она не зависит от пропсов)
+  // Отмена текущего запроса
+  const cancelCurrentRequest = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  }, []);
+
   const getWeatherIcon = useCallback((code) => {
     const iconMap = {
       113: '01d', 116: '02d', 119: '03d', 122: '04d', 143: '50d',
@@ -23,10 +30,13 @@ const WeatherWidget = ({ onClose }) => {
     };
     const iconCode = iconMap[code] || '01d';
     return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
-  }, []); // Пустой массив, т.к. функция не зависит от пропсов
+  }, []);
 
-  // 🔧 2. Обернем fetchWeatherFromWttr в useCallback
+  // 🔧 ИСПРАВЛЕННАЯ функция с отменой предыдущего запроса
   const fetchWeatherFromWttr = useCallback(async (cityName) => {
+    // 🚨 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: отменяем предыдущий запрос перед новым
+    cancelCurrentRequest();
+    
     const controller = new AbortController();
     abortControllerRef.current = controller;
     
@@ -55,23 +65,45 @@ const WeatherWidget = ({ onClose }) => {
         icon: getWeatherIcon(current.weatherCode)
       };
     } catch (error) {
-      if (error.name === 'AbortError') return null;
+      if (error.name === 'AbortError') {
+        console.log('Request cancelled for:', cityName);
+        return null;
+      }
       throw error;
     }
-  }, [getWeatherIcon]); // Зависит от getWeatherIcon
+  }, [getWeatherIcon, cancelCurrentRequest]);
 
-  // 🔧 3. Обернем основную fetchWeather в useCallback
+  // 🔧 ИСПРАВЛЕННАЯ fetchWeather (добавляем проверку на актуальность)
   const fetchWeather = useCallback(async (cityName, isInitialLoad = false) => {
+    // Отменяем предыдущие запросы при новом вызове
+    cancelCurrentRequest();
+    
     setIsLoading(true);
     setErrorMessage('');
+    
+    // Запоминаем, для какого города делаем запрос
+    const requestedCity = cityName;
     
     try {
       const weather = await fetchWeatherFromWttr(cityName);
       
+      // 🚨 ВАЖНО: проверяем, что ответ актуален
+      // Если за время запроса пользователь ввел другой город или компонент размонтировался
       if (!weather) {
+        // Если запрос был отменен, ничего не делаем
+        if (abortControllerRef.current?.signal.aborted) {
+          return;
+        }
         setErrorMessage(`Не удалось получить данные для города ${cityName}`);
         if (!isInitialLoad) setCityInput('');
         setIsLoading(false);
+        return;
+      }
+      
+      // Проверяем, что это не устаревший запрос
+      // Сравниваем город из ответа с текущим вводом (для ручных запросов)
+      if (!isInitialLoad && cityInput !== requestedCity) {
+        console.log('Skipping stale response for:', weather.city);
         return;
       }
       
@@ -79,40 +111,47 @@ const WeatherWidget = ({ onClose }) => {
       setCityInput(weather.city);
       
     } catch (error) {
+      // Игнорируем ошибки отмененных запросов
+      if (error?.name === 'AbortError') {
+        return;
+      }
       console.error('Error fetching weather:', error);
       setErrorMessage('Не удалось получить данные. Проверьте подключение к интернету.');
     } finally {
+      // Проверяем, что это все еще актуальный запрос перед снятием лоадера
+      if (abortControllerRef.current?.signal.aborted) {
+        return;
+      }
       setIsLoading(false);
     }
-  }, [fetchWeatherFromWttr]); // Зависит от fetchWeatherFromWttr
+  }, [fetchWeatherFromWttr, cancelCurrentRequest, cityInput]);
 
-  // 🔧 4. ИСПРАВЛЕННЫЙ useEffect с правильными зависимостями
+  // ИСПРАВЛЕННЫЙ useEffect с правильной очисткой
   useEffect(() => {
     fetchWeather('Tyumen', true);
     
     return () => {
-      // Cleanup: отменяем запрос при размонтировании
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+      // Cleanup: отменяем все запросы при размонтировании компонента
+      cancelCurrentRequest();
     };
-  }, [fetchWeather]); // ✅ Теперь зависимость указана правильно
+  }, [fetchWeather, cancelCurrentRequest]);
 
-  // 🔧 5. Обработчики не требуют useCallback (они не передаются в дочерние компоненты)
-  const handleFetchWeather = () => {
+  // 🔧 ИСПРАВЛЕННЫЙ обработчик с дебаунсом (опционально, но круто)
+  const handleFetchWeather = useCallback(() => {
     if (!cityInput.trim()) {
       setErrorMessage('Введите название города');
       return;
     }
     fetchWeather(cityInput.trim(), false);
-  };
+  }, [cityInput, fetchWeather]);
 
-  // 🔧 6. Геолокация - обернем в useCallback
   const getUserLocation = useCallback(() => {
     if (!navigator.geolocation) {
       setErrorMessage('Геолокация не поддерживается вашим браузером');
       return;
     }
+    
+    cancelCurrentRequest(); // Отменяем текущий запрос перед геолокацией
     
     setIsLoading(true);
     setErrorMessage('');
@@ -149,9 +188,8 @@ const WeatherWidget = ({ onClose }) => {
         setIsLoading(false);
       }
     );
-  }, [fetchWeather]); // Зависит от fetchWeather
+  }, [fetchWeather, cancelCurrentRequest]);
 
-  // Форматирование (они чистые функции, не требуют useCallback)
   const formatTemperature = (temp) => `${temp > 0 ? '+' : ''}${temp}°C`;
   const formatWindSpeed = (speed) => `${Math.round(speed * 0.621371)} mph`;
 
@@ -175,6 +213,7 @@ const WeatherWidget = ({ onClose }) => {
               placeholder="Введите город"
               disabled={isLoading}
               className="weather-input"
+              onKeyDown={(e) => e.key === 'Enter' && handleFetchWeather()}
             />
             <button 
               onClick={handleFetchWeather}
@@ -228,9 +267,10 @@ const WeatherWidget = ({ onClose }) => {
           
           <button 
             onClick={getUserLocation}
+            disabled={isLoading}
             className="location-button"
           >
-            Моя геолокация
+            📍 Моя геолокация
           </button>
         </div>
       )}
