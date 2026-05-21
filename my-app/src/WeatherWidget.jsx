@@ -7,8 +7,9 @@ const WeatherWidget = ({ onClose }) => {
   const [cityInput, setCityInput] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const abortControllerRef = useRef(null);
+  // 🔧 Добавляем ref для отслеживания смонтирован ли компонент
+  const isMountedRef = useRef(true);
 
-  // Отмена текущего запроса
   const cancelCurrentRequest = useCallback(() => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -32,9 +33,7 @@ const WeatherWidget = ({ onClose }) => {
     return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
   }, []);
 
-  // 🔧 ИСПРАВЛЕННАЯ функция с отменой предыдущего запроса
   const fetchWeatherFromWttr = useCallback(async (cityName) => {
-    // 🚨 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: отменяем предыдущий запрос перед новым
     cancelCurrentRequest();
     
     const controller = new AbortController();
@@ -66,44 +65,39 @@ const WeatherWidget = ({ onClose }) => {
       };
     } catch (error) {
       if (error.name === 'AbortError') {
-        console.log('Request cancelled for:', cityName);
         return null;
       }
       throw error;
     }
   }, [getWeatherIcon, cancelCurrentRequest]);
 
-  // 🔧 ИСПРАВЛЕННАЯ fetchWeather (добавляем проверку на актуальность)
+  // 🔧 ИСПРАВЛЕННАЯ fetchWeather - убираем setState из catch/finally
   const fetchWeather = useCallback(async (cityName, isInitialLoad = false) => {
-    // Отменяем предыдущие запросы при новом вызове
     cancelCurrentRequest();
+    
+    // Используем ref для проверки монтирования
+    if (!isMountedRef.current) return;
     
     setIsLoading(true);
     setErrorMessage('');
     
-    // Запоминаем, для какого города делаем запрос
     const requestedCity = cityName;
     
     try {
       const weather = await fetchWeatherFromWttr(cityName);
       
-      // 🚨 ВАЖНО: проверяем, что ответ актуален
-      // Если за время запроса пользователь ввел другой город или компонент размонтировался
+      if (!isMountedRef.current) return;
+      
       if (!weather) {
-        // Если запрос был отменен, ничего не делаем
         if (abortControllerRef.current?.signal.aborted) {
           return;
         }
         setErrorMessage(`Не удалось получить данные для города ${cityName}`);
         if (!isInitialLoad) setCityInput('');
-        setIsLoading(false);
         return;
       }
       
-      // Проверяем, что это не устаревший запрос
-      // Сравниваем город из ответа с текущим вводом (для ручных запросов)
       if (!isInitialLoad && cityInput !== requestedCity) {
-        console.log('Skipping stale response for:', weather.city);
         return;
       }
       
@@ -111,32 +105,75 @@ const WeatherWidget = ({ onClose }) => {
       setCityInput(weather.city);
       
     } catch (error) {
-      // Игнорируем ошибки отмененных запросов
+      if (!isMountedRef.current) return;
       if (error?.name === 'AbortError') {
         return;
       }
       console.error('Error fetching weather:', error);
       setErrorMessage('Не удалось получить данные. Проверьте подключение к интернету.');
     } finally {
-      // Проверяем, что это все еще актуальный запрос перед снятием лоадера
-      if (abortControllerRef.current?.signal.aborted) {
-        return;
+      // 🔧 ИСПРАВЛЕНИЕ: проверяем монтирование перед setState
+      if (isMountedRef.current && !abortControllerRef.current?.signal.aborted) {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
   }, [fetchWeatherFromWttr, cancelCurrentRequest, cityInput]);
 
-  // ИСПРАВЛЕННЫЙ useEffect с правильной очисткой
+  // 🔧 ИСПРАВЛЕННЫЙ useEffect - убираем прямой вызов асинхронной функции с setState
   useEffect(() => {
-    fetchWeather('Tyumen', true);
+    // Создаем флаг для отслеживания актуальности эффекта
+    let isEffectActive = true;
+    
+    // Объявляем асинхронную функцию внутри эффекта
+    const loadInitialWeather = async () => {
+      if (!isEffectActive) return;
+      
+      cancelCurrentRequest();
+      
+      if (!isMountedRef.current) return;
+      
+      setIsLoading(true);
+      setErrorMessage('');
+      
+      try {
+        const weather = await fetchWeatherFromWttr('Tyumen');
+        
+        if (!isEffectActive || !isMountedRef.current) return;
+        
+        if (weather) {
+          setWeatherData(weather);
+          setCityInput(weather.city);
+        } else {
+          setErrorMessage('Не удалось загрузить погоду для Тюмени');
+        }
+      } catch (error) {
+        if (!isEffectActive || !isMountedRef.current) return;
+        console.error('Error loading initial weather:', error);
+        setErrorMessage('Не удалось загрузить погоду');
+      } finally {
+        if (isEffectActive && isMountedRef.current) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    loadInitialWeather();
     
     return () => {
-      // Cleanup: отменяем все запросы при размонтировании компонента
+      isEffectActive = false;
       cancelCurrentRequest();
     };
-  }, [fetchWeather, cancelCurrentRequest]);
+  }, [fetchWeatherFromWttr, cancelCurrentRequest]); // ✅ Корректные зависимости
 
-  // 🔧 ИСПРАВЛЕННЫЙ обработчик с дебаунсом (опционально, но круто)
+  // 🔧 Отмечаем размонтирование компонента
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      cancelCurrentRequest();
+    };
+  }, [cancelCurrentRequest]);
+
   const handleFetchWeather = useCallback(() => {
     if (!cityInput.trim()) {
       setErrorMessage('Введите название города');
@@ -151,8 +188,7 @@ const WeatherWidget = ({ onClose }) => {
       return;
     }
     
-    cancelCurrentRequest(); // Отменяем текущий запрос перед геолокацией
-    
+    cancelCurrentRequest();
     setIsLoading(true);
     setErrorMessage('');
     
@@ -167,18 +203,20 @@ const WeatherWidget = ({ onClose }) => {
           const data = await response.json();
           const city = data.address.city || data.address.town || data.address.village;
           
-          if (city) {
+          if (city && isMountedRef.current) {
             await fetchWeather(city, false);
-          } else {
+          } else if (isMountedRef.current) {
             throw new Error('City not found');
           }
         } catch (error) {
+          if (!isMountedRef.current) return;
           console.error('Reverse geocoding error:', error);
           setErrorMessage('Не удалось определить город по геолокации');
           setIsLoading(false);
         }
       },
       (error) => {
+        if (!isMountedRef.current) return;
         console.error('Geolocation error:', error);
         if (error.code === 1) {
           setErrorMessage('Разрешите доступ к геолокации');
